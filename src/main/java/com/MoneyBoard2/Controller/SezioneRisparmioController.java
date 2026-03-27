@@ -41,6 +41,8 @@ public class SezioneRisparmioController
     	nuova.setSaldo(0.00d);
     	nuova.setUtente(request.getUtente());
     	
+    	repository.save(nuova); 
+    	
     	return ResponseEntity.ok(nuova); 
     }
     
@@ -59,4 +61,6 @@ public class SezioneRisparmioController
             return ResponseEntity.notFound().build();
         }
     }
+    
+ 
 }

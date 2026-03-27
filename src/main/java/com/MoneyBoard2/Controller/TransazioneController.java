@@ -59,7 +59,7 @@ public class TransazioneController {
     		throw new NotFoundException("Utente con mail " + request.getUtente().getEmail() + " inesistente!");
     	}
     	
-    	Transazione transazione = createItem(request); 
+    	Transazione transazione = createItem(request, section); 
     	
     	if(!transazione.getIsEntrata())
     	{
@@ -89,15 +89,21 @@ public class TransazioneController {
             SezioneRisparmio sezione = trans.getSezione();
 
             if (sezione != null) {
-                // Sottraiamo l'importo prima di eliminare la transazione
-                sezione.setSaldo(sezione.getSaldo() - trans.getImporto());
-                sezioneRepository.save(sezione);
+                if (trans.getIsEntrata()) {
+                    sezione.setSaldo(sezione.getSaldo() - trans.getImporto());  // Entrata → sottrai dal saldo
+                } else {
+                    sezione.setSaldo(sezione.getSaldo() + trans.getImporto());  // Uscita → aggiungi al saldo (annulla)
+                }
+               
+             sezioneRepository.save(sezione);
+             transazioneRepository.delete(trans);
+            
             }
-            transazioneRepository.deleteById(id);
         }
+        
     }
     
-    public Transazione createItem(CreateTransactionRequest request)
+    public Transazione createItem(CreateTransactionRequest request, SezioneRisparmio section)
     {
     	Transazione transazione = new Transazione();
     	transazione.setTitolo(request.getTitolo());
@@ -106,7 +112,7 @@ public class TransazioneController {
     	transazione.setImporto(request.getImporto());
     	transazione.setIsEntrata(request.isEntrata());
     	transazione.setUtente(request.getUtente());
-    	
+    	transazione.setSezione(section);
     	return transazione;
     }
 }
