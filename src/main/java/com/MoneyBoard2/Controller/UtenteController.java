@@ -2,6 +2,12 @@ package com.MoneyBoard2.Controller;
 
 import com.MoneyBoard2.Model.Utente;
 import com.MoneyBoard2.Repository.UtenteRepository;
+import com.MoneyBoard2.Request.LoginRequest;
+import com.MoneyBoard2.Request.UserCreateRequest;
+import com.MoneyBoard2.Exception.BadLoginException;
+import com.MoneyBoard2.Exception.CreationException;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -26,27 +32,31 @@ public class UtenteController {
     }
 
     @PostMapping
-    public Utente create(@RequestBody Utente utente) {
-        String passwordCifrata = passwordEncoder.encode(utente.getPassword());
-        utente.setPassword(passwordCifrata);
+    public ResponseEntity<Object> create(@RequestBody UserCreateRequest request) throws CreationException
+    {
+        String passwordCifrata = passwordEncoder.encode(request.getPassword());
+        Utente utente2 = repository.findByemail(request.getEmail());
+        if(utente2 != null) { throw new CreationException("Utente già esistente");  } 
         
-        return repository.save(utente);
+        repository.save(new Utente(request.getUsername(), passwordCifrata, request.getEmail()));
+        
+        return ResponseEntity.ok().build();
     }
     
     @PostMapping("/login")
-    public Utente login(@RequestBody Utente loginRequest) {
+    public Utente login(@RequestBody LoginRequest login) throws BadLoginException 
+    {
 
-    	Utente utente = repository.findByUsername(loginRequest.getUsername());
+    	Utente utente = repository.findByemail(login.getEmail());
 
         if (utente != null) {
-            // 2. Usiamo BCrypt per confrontare la password inserita con quella cifrata nel DB
-            // NON si usa "equals", perché una è in chiaro e l'altra è un hash!
-            if (passwordEncoder.matches(loginRequest.getPassword(), utente.getPassword())) {
-                return utente; // Login successo! Restituiamo l'utente
+            if (passwordEncoder.matches(login.getPassword(), utente.getPassword())) 
+            {
+            	utente.setPassword(null); 
+                return utente; 
             }
         }
         
-        // 3. Se arriviamo qui, qualcosa è andato storto
-        throw new RuntimeException("Credenziali non valide");
+        throw new BadLoginException("Email o password errati");
     }
 }

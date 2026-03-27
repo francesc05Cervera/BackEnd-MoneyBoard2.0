@@ -15,7 +15,9 @@ public class Utente {
     @Column(unique = true, nullable = false)
     private String username;
 
-    private String password; 
+    private String password;
+    
+    @Column(unique = true, nullable = false)
     private String email;
 
     @OneToMany(mappedBy = "utente")

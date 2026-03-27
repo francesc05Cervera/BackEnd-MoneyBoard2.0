@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface UtenteRepository extends JpaRepository<Utente, Long> {
 
 	Utente findByUsername(String username);
+	Utente findByemail(String email);
 }

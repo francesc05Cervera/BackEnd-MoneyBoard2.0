@@ -14,6 +14,7 @@ public class Transazione {
     private String titolo;
     private String descrizione;
     private Double importo; 
+    private boolean isEntrata; 
     private LocalDate data; 
 
     @ManyToOne 
@@ -37,6 +38,7 @@ public class Transazione {
         this.data = data;
         this.sezione = sezione;
         this.utente = utente;
+        this.isEntrata = true; 
     }
 
     // --- GETTER E SETTER ---
@@ -96,4 +98,8 @@ public class Transazione {
     public void setUtente(Utente utente) {
         this.utente = utente;
     }
+    
+    public boolean getIsEntrata() { return isEntrata; } 
+    
+    public void setIsEntrata(boolean flag) { this.isEntrata = flag; } 
 }

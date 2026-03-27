@@ -1,9 +1,15 @@
 package com.MoneyBoard2.Controller;
 
+import com.MoneyBoard2.Exception.NotFoundException;
 import com.MoneyBoard2.Model.SezioneRisparmio;
 import com.MoneyBoard2.Model.Transazione;
+import com.MoneyBoard2.Model.Utente;
 import com.MoneyBoard2.Repository.SezioneRisparmioRepository;
 import com.MoneyBoard2.Repository.TransazioneRepository;
+import com.MoneyBoard2.Repository.UtenteRepository;
+import com.MoneyBoard2.Request.CreateTransactionRequest;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,13 +20,16 @@ import java.util.Optional;
 public class TransazioneController {
 
     private final TransazioneRepository transazioneRepository;
-    private final SezioneRisparmioRepository sezioneRepository; // Aggiunto!
-
-    // Il costruttore ora deve avere ENTRAMBI i repository
+    private final SezioneRisparmioRepository sezioneRepository; 
+    private final UtenteRepository utenteRepository;
+  
     public TransazioneController(TransazioneRepository transazioneRepository, 
-                                 SezioneRisparmioRepository sezioneRepository) {
+                                 SezioneRisparmioRepository sezioneRepository,
+                                 UtenteRepository  utenteRepository) 
+    {
         this.transazioneRepository = transazioneRepository;
         this.sezioneRepository = sezioneRepository;
+        this.utenteRepository = utenteRepository;
     }
 
     @GetMapping("/utente/{utenteId}")
@@ -29,27 +38,46 @@ public class TransazioneController {
     }
 
     @GetMapping("/utente/{utenteId}/sezione/{sezioneId}")
-    public List<Transazione> getPerUtenteESezione(@PathVariable Long utenteId, @PathVariable Long sezioneId) {
+    public List<Transazione> getPerUtenteESezione(@PathVariable Long utenteId, @PathVariable Long sezioneId) 
+    {
         return transazioneRepository.findByUtenteIdAndSezioneId(utenteId, sezioneId);
     }
 
     @PostMapping
-    public Transazione create(@RequestBody Transazione transazione) {
-        // 1. Salviamo la transazione
-        Transazione salvata = transazioneRepository.save(transazione);
-
-        // 2. Aggiorniamo il saldo della sezione
-        if (salvata.getSezione() != null) {
-            // Recuperiamo la sezione aggiornata dal database per sicurezza
-            SezioneRisparmio sezione = sezioneRepository.findById(salvata.getSezione().getId()).orElse(null);
-            
-            if (sezione != null) {
-                // Nuovo Saldo = Saldo Attuale + Importo Transazione
-                sezione.setSaldo(sezione.getSaldo() + salvata.getImporto());
-                sezioneRepository.save(sezione);
-            }
-        }
-        return salvata;
+    public ResponseEntity<Transazione> create(@RequestBody CreateTransactionRequest request) throws NotFoundException
+    {
+    	SezioneRisparmio section = sezioneRepository.findBynome(request.getSezione().getNome()); 
+    	if(section == null)
+    	{ 
+    		throw new NotFoundException("Sezione "+ request.getSezione().getNome() + " inesistente!"); 
+    	}
+    	
+    	Utente utente = utenteRepository.findByemail(request.getUtente().getEmail()); 
+    	
+    	if(utente == null)
+    	{
+    		throw new NotFoundException("Utente con mail " + request.getUtente().getEmail() + " inesistente!");
+    	}
+    	
+    	Transazione transazione = createItem(request); 
+    	
+    	if(!transazione.getIsEntrata())
+    	{
+    		Double saldo = section.getSaldo() - transazione.getImporto(); 
+    		section.setSaldo(saldo);
+    		transazioneRepository.save(transazione); 
+    		sezioneRepository.save(section);
+    	}
+    	else
+    	{
+    		Double saldo = section.getSaldo() + transazione.getImporto(); 
+    		section.setSaldo(saldo);
+    		transazioneRepository.save(transazione); 
+    		sezioneRepository.save(section);
+    	}
+    	
+    	return ResponseEntity.ok(transazione);
+    	
     }
 
     @DeleteMapping("/{id}")
@@ -67,5 +95,18 @@ public class TransazioneController {
             }
             transazioneRepository.deleteById(id);
         }
+    }
+    
+    public Transazione createItem(CreateTransactionRequest request)
+    {
+    	Transazione transazione = new Transazione();
+    	transazione.setTitolo(request.getTitolo());
+    	transazione.setDescrizione(request.getDescrizione());
+    	transazione.setData(request.getData());
+    	transazione.setImporto(request.getImporto());
+    	transazione.setIsEntrata(request.isEntrata());
+    	transazione.setUtente(request.getUtente());
+    	
+    	return transazione;
     }
 }
