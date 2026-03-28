@@ -3,6 +3,7 @@ package com.MoneyBoard2.Controller;
 import com.MoneyBoard2.Exception.CreationException;
 import com.MoneyBoard2.Model.SezioneRisparmio;
 import com.MoneyBoard2.Repository.SezioneRisparmioRepository;
+import com.MoneyBoard2.Request.DeleteSezioneRequest;
 import com.MoneyBoard2.Request.SectionCreateRequest;
 
 import org.springframework.http.ResponseEntity;
@@ -47,13 +48,13 @@ public class SezioneRisparmioController
     }
     
     @DeleteMapping
-    public ResponseEntity<Void> delete(@RequestBody SezioneRisparmio sezione) {
+    public ResponseEntity<Void> delete(@RequestBody DeleteSezioneRequest request) {
 
-        if (sezione == null || sezione.getNome() == null) {
+        if (request == null || request.getNome() == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        boolean deleted = repository.deleteByNome(sezione.getNome());
+        boolean deleted = repository.deleteByNome(request.getNome());
 
         if (deleted) {
             return ResponseEntity.noContent().build();
