@@ -76,6 +76,7 @@ public class TransazioneController {
     	
     	section.setSaldo(newSaldo);
     	sezioneRepository.save(section);
+    	transazioneRepository.save(transazione);
     	
     	
     	return ResponseEntity.ok(transazione);
