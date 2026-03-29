@@ -27,7 +27,7 @@ public class ServiceSezione
 		{
 			Double saldo_nuovo = saldo + importo; 
 			
-			if(saldo > saldo_nuovo)
+			if(saldo_nuovo > saldo)
 			{
 				return saldo_nuovo;
 			}
