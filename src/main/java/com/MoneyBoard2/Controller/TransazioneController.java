@@ -1,5 +1,6 @@
 package com.MoneyBoard2.Controller;
 
+import com.MoneyBoard2.Exception.CreationException;
 import com.MoneyBoard2.Exception.NotFoundException;
 import com.MoneyBoard2.Model.SezioneRisparmio;
 import com.MoneyBoard2.Model.Transazione;
@@ -8,6 +9,8 @@ import com.MoneyBoard2.Repository.SezioneRisparmioRepository;
 import com.MoneyBoard2.Repository.TransazioneRepository;
 import com.MoneyBoard2.Repository.UtenteRepository;
 import com.MoneyBoard2.Request.CreateTransactionRequest;
+import com.MoneyBoard2.Service.ServiceSezione;
+import com.MoneyBoard2.Service.ServiceTransazione;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,12 +47,18 @@ public class TransazioneController {
     }
 
     @PostMapping
-    public ResponseEntity<Transazione> create(@RequestBody CreateTransactionRequest request) throws NotFoundException
+    public ResponseEntity<Transazione> create(@RequestBody CreateTransactionRequest request) throws NotFoundException, CreationException
     {
     	SezioneRisparmio section = sezioneRepository.findBynome(request.getSezione().getNome()); 
+    	
     	if(section == null)
     	{ 
     		throw new NotFoundException("Sezione "+ request.getSezione().getNome() + " inesistente!"); 
+    	}
+    	
+    	if(!ServiceTransazione.validateCreation(section, request))
+    	{
+    		throw new CreationException("Saldo in sezione insufficiente"); 
     	}
     	
     	Utente utente = utenteRepository.findByemail(request.getUtente().getEmail()); 
@@ -61,20 +70,13 @@ public class TransazioneController {
     	
     	Transazione transazione = createItem(request, section); 
     	
-    	if(!transazione.getIsEntrata())
-    	{
-    		Double saldo = section.getSaldo() - transazione.getImporto(); 
-    		section.setSaldo(saldo);
-    		transazioneRepository.save(transazione); 
-    		sezioneRepository.save(section);
-    	}
-    	else
-    	{
-    		Double saldo = section.getSaldo() + transazione.getImporto(); 
-    		section.setSaldo(saldo);
-    		transazioneRepository.save(transazione); 
-    		sezioneRepository.save(section);
-    	}
+    	Double newSaldo = ServiceSezione.aggiornaSaldo(transazione.getIsEntrata(), transazione.getImporto(), section.getSaldo());
+    	
+    	if(newSaldo == -1.00) { throw new CreationException("Saldo in sezione insufficiente"); }
+    	
+    	section.setSaldo(newSaldo);
+    	sezioneRepository.save(section);
+    	
     	
     	return ResponseEntity.ok(transazione);
     	
