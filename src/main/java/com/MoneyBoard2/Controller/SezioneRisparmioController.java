@@ -50,17 +50,18 @@ public class SezioneRisparmioController
     @DeleteMapping
     public ResponseEntity<Void> delete(@RequestBody DeleteSezioneRequest request) {
 
-        if (request == null || request.getNome() == null) {
+        if (request == null || request.getNome() == null || request.getNome().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
 
-        boolean deleted = repository.deleteByNome(request.getNome());
+        SezioneRisparmio sezione = repository.findBynome(request.getNome());
 
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        } else {
+        if (sezione == null) {
             return ResponseEntity.notFound().build();
         }
+
+        repository.delete(sezione);
+        return ResponseEntity.noContent().build();
     }
     
  
