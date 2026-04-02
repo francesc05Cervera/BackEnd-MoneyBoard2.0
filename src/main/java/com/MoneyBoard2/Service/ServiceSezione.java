@@ -21,7 +21,7 @@ public class ServiceSezione
 		return false; 
 	}
 
-	public static Double aggiornaSaldo(boolean entrata, Double importo, Double saldo)
+	public static Double aggiornaSaldoEntrata(boolean entrata, Double importo, Double saldo)
 	{
 		if(entrata)
 		{
@@ -45,5 +45,25 @@ public class ServiceSezione
 		}
 		
 		return saldo;
+	}
+	
+	public static Double aggiornaSaldoUscita(boolean entrata, Double importo, Double saldo)
+	{
+		
+		if(entrata)
+		{
+			Double newSaldo = saldo - importo; 
+			
+				if(newSaldo < saldo) { return newSaldo; }
+		}
+		else {
+			Double newSaldo = saldo + importo;
+			
+				if(newSaldo > saldo) { return newSaldo; }
+		}
+		
+		return saldo; 
+	
+	
 	}
 }

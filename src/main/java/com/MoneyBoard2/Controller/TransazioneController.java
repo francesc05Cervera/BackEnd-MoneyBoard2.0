@@ -70,7 +70,7 @@ public class TransazioneController {
     	
     	Transazione transazione = createItem(request, section); 
     	
-    	Double newSaldo = ServiceSezione.aggiornaSaldo(transazione.getIsEntrata(), transazione.getImporto(), section.getSaldo());
+    	Double newSaldo = ServiceSezione.aggiornaSaldoEntrata(transazione.getIsEntrata(), transazione.getImporto(), section.getSaldo());
     	
     	if(newSaldo == -1.00) { throw new CreationException("Saldo in sezione insufficiente"); }
     	
@@ -91,20 +91,17 @@ public class TransazioneController {
             Transazione trans = transOpt.get();
             SezioneRisparmio sezione = trans.getSezione();
 
-            if (sezione != null) {
-                if (trans.getIsEntrata()) {
-                    sezione.setSaldo(sezione.getSaldo() - trans.getImporto());  // Entrata → sottrai dal saldo
-                } else {
-                    sezione.setSaldo(sezione.getSaldo() + trans.getImporto());  // Uscita → aggiungi al saldo (annulla)
-                }
-               
+            Double newSaldo = ServiceSezione.aggiornaSaldoUscita(trans.getIsEntrata(), trans.getImporto(), sezione.getSaldo());
+           
+             sezione.setSaldo(newSaldo);
+             
              sezioneRepository.save(sezione);
              transazioneRepository.delete(trans);
             
             }
         }
         
-    }
+    
     
     public Transazione createItem(CreateTransactionRequest request, SezioneRisparmio section)
     {
