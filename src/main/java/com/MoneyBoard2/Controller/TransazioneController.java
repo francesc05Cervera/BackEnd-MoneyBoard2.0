@@ -1,6 +1,7 @@
 package com.MoneyBoard2.Controller;
 
 import com.MoneyBoard2.Exception.CreationException;
+import com.MoneyBoard2.Exception.DeleteException;
 import com.MoneyBoard2.Exception.NotFoundException;
 import com.MoneyBoard2.Model.SezioneRisparmio;
 import com.MoneyBoard2.Model.Transazione;
@@ -84,7 +85,7 @@ public class TransazioneController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) throws DeleteException {
         Optional<Transazione> transOpt = transazioneRepository.findById(id);
         
         if (transOpt.isPresent()) {
@@ -93,6 +94,7 @@ public class TransazioneController {
 
             Double newSaldo = ServiceSezione.aggiornaSaldoUscita(trans.getIsEntrata(), trans.getImporto(), sezione.getSaldo());
            
+            if(newSaldo == sezione.getSaldo()) { throw new DeleteException("Errore in eliminazione della transazione! Il saldo non si aggiorna"); }
              sezione.setSaldo(newSaldo);
              
              sezioneRepository.save(sezione);
