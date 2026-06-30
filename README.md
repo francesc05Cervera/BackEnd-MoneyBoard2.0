@@ -36,6 +36,8 @@ Questo progetto è la versione evoluta del precedente MoneyBoard, con un'archite
 ---
 
 ## 🏗️ Struttura del progetto
+
+```text
 src/main/java/com/MoneyBoard2/
 ├── config/ # Configurazioni Spring Security e CORS
 ├── Controller/ # REST Controllers (endpoint API)
@@ -45,6 +47,7 @@ src/main/java/com/MoneyBoard2/
 ├── Request/ # DTO per le richieste HTTP
 ├── Exception/ # Gestione centralizzata degli errori
 └── MoneyBoard2Application.java # Entry point
+```
 
 
 ---
