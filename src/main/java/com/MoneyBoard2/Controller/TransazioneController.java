@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/transazioni")
+@CrossOrigin(origins = "*")
 public class TransazioneController {
 
     private final TransazioneRepository transazioneRepository;
