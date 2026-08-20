@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/sezioni")
+@CrossOrigin(origins = "*")
 public class SezioneRisparmioController 
 {
 
