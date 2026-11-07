@@ -16,6 +16,7 @@ import java.util.List;
 @Deprecated 
 @RestController
 @RequestMapping("/api/sezioni")
+@CrossOrigin(origins = "*")
 public class SezioneRisparmioController 
 {
 
