@@ -18,7 +18,7 @@ import com.MoneyBoard2.Service.ServiceUtente;
 
 @RestController 
 @RequestMapping("/api2/user")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://moneyboard-klhv.onrender.com", "http://localhost:4200"})
 public class UsrCtrl 
 {
    private ServiceUtente service; 

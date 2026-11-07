@@ -22,7 +22,7 @@ import com.MoneyBoard2.Service.ServiceTransazione;
 
 @RestController
 @RequestMapping("/api2/transazione")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://moneyboard-klhv.onrender.com", "http://localhost:4200"})
 public class TransazioneCtrl {
 
     private final ServiceTransazione service;

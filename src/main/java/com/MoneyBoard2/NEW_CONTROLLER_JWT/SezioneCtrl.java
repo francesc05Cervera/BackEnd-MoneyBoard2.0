@@ -21,7 +21,7 @@ import com.MoneyBoard2.Model.SezioneRisparmio;
 
 @RestController 
 @RequestMapping("/api2/sezione")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://moneyboard-klhv.onrender.com", "http://localhost:4200"})
 public class SezioneCtrl 
 {
     private final ServiceSezione service;
