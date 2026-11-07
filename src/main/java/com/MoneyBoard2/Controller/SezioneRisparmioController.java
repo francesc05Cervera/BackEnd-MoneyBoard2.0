@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@Deprecated 
 @RestController
 @RequestMapping("/api/sezioni")
 public class SezioneRisparmioController 

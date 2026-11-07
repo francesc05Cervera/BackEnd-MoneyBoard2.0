@@ -10,4 +10,5 @@ public interface SezioneRisparmioRepository extends JpaRepository<SezioneRisparm
 	List<SezioneRisparmio> findByUtenteId(Long utenteId);
 	SezioneRisparmio findBynome(String nome);
 	boolean deleteByNome(String nome); 
+	boolean existsByNome(String nome);
 }
